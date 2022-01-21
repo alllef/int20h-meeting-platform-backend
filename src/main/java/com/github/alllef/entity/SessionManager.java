@@ -9,9 +9,9 @@ import java.util.concurrent.ConcurrentHashMap;
 
 @Component
 public class SessionManager {
-    private final Map<String, Session> sessions = new ConcurrentHashMap<>();
+    private final Map<SessionIdentifier, Session> sessions = new ConcurrentHashMap<>();
 
-    public boolean addSession(String sessionName, Session session) {
+    public boolean addSession(SessionIdentifier sessionName, Session session) {
         if (sessions.containsKey(sessionName))
             return false;
 
@@ -19,7 +19,7 @@ public class SessionManager {
         return true;
     }
 
-    public boolean removeSession(String sessionName) {
+    public boolean removeSession(SessionIdentifier sessionName) {
         if (sessions.containsKey(sessionName)) {
             sessions.remove(sessionName);
             return true;
@@ -28,7 +28,7 @@ public class SessionManager {
         return false;
     }
 
-    public Optional<Session> getSession(String sessionName) {
+    public Optional<Session> getSession(SessionIdentifier sessionName) {
         return Optional.ofNullable(sessions.get(sessionName));
     }
 }

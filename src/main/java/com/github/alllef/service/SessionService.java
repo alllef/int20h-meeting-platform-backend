@@ -1,9 +1,12 @@
 package com.github.alllef.service;
 
+import com.github.alllef.entity.SessionIdentifier;
 import com.github.alllef.entity.SessionManager;
 import io.openvidu.java.client.*;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
+
+import java.util.Optional;
 
 @Service
 @AllArgsConstructor
@@ -11,15 +14,16 @@ public class SessionService {
     private final OpenVidu openVidu;
     private final SessionManager sessionManager;
 
-    private void createSession(String sessionName) {
-        try {
+    public Optional<Session> createSession(SessionIdentifier sessionIdentifier) throws OpenViduJavaClientException, OpenViduHttpException {
+        if (sessionManager.getSession(sessionIdentifier)
+                .isPresent())
+            return Optional.empty();
+
             Session newSession = openVidu.createSession();
-            sessionManager.addSession(sessionName,newSession);
-        } catch (OpenViduJavaClientException e) {
-            e.printStackTrace();
-        } catch (OpenViduHttpException e) {
-            e.printStackTrace();
-        }
+            return Optional.of(newSession);
     }
 
+    public Optional<Session> getSession(SessionIdentifier sessionIdentifier){
+        return sessionManager.getSession(sessionIdentifier);
+    }
 }
