@@ -1,7 +1,7 @@
 package com.github.alllef.service;
 
 import com.github.alllef.entity.SessionIdentifier;
-import com.github.alllef.entity.SessionManager;
+import com.github.alllef.manager.SessionManager;
 import io.openvidu.java.client.*;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;

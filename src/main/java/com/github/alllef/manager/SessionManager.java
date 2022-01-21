@@ -1,5 +1,6 @@
-package com.github.alllef.entity;
+package com.github.alllef.manager;
 
+import com.github.alllef.entity.SessionIdentifier;
 import io.openvidu.java.client.Session;
 import org.springframework.stereotype.Component;
 
