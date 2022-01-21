@@ -2,6 +2,7 @@ package com.github.alllef.controller;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.github.alllef.entity.User;
+import com.github.alllef.manager.SessionManager;
 import com.github.alllef.service.ConnectionService;
 import com.github.alllef.service.SessionService;
 import com.google.gson.JsonObject;
@@ -22,9 +23,15 @@ import javax.servlet.http.HttpSession;
 @RestController
 @AllArgsConstructor
 public class SessionController {
+    private final SessionManager sessionManager;
     private final SessionService sessionService;
     private final ConnectionService connectionService;
 
+    /*TODO There user should connect to the session
+    There should be created session if it equals url session id of user
+    and established connection.
+    Else should be only established connection
+     */
     @PostMapping("/connect/{session-id}")
     ResponseEntity<JSONObject> connect(@PathVariable("session-id") String sessionUrlId, HttpSession httpSession) {
         User user = (User) httpSession.getAttribute("userName");
@@ -35,34 +42,41 @@ public class SessionController {
             return createSession(user);
     }
 
+    /*TODO There user should be removed
+
+     */
     @PostMapping("/remove-user")
     ResponseEntity<JSONObject> removeUser(@RequestBody String sessionNameToken, HttpSession httpSession) throws Exception {
         JSONObject sessionNameTokenJSON = (JSONObject) new JSONParser().parse(sessionNameToken);
+
         String sessionName = (String) sessionNameTokenJSON.get("sessionName");
+        String sessionUrlId = (String) sessionNameTokenJSON.get("sessionUrlId");
         String userToken = (String) sessionNameTokenJSON.get("userToken");
         String moderatorToken = (String) sessionNameTokenJSON.get("moderatorToken");
 
-        if (this.mapSessions.get(sessionName) != null && this.mapSessionNamesTokens.get(sessionName) != null) {
+        if (moderatorToken.equals(userToken))
 
-            // If the token exists
-            if (this.mapSessionNamesTokens.get(sessionName).remove(userToken) != null) {
-                // User left the session
-                if (this.mapSessionNamesTokens.get(sessionName).isEmpty()) {
-                    // Last user left: session must be removed
-                    this.mapSessions.remove(sessionName);
+            if (this.mapSessions.get(sessionName) != null && this.mapSessionNamesTokens.get(sessionName) != null) {
+
+                // If the token exists
+                if (this.mapSessionNamesTokens.get(sessionName).remove(userToken) != null) {
+                    // User left the session
+                    if (this.mapSessionNamesTokens.get(sessionName).isEmpty()) {
+                        // Last user left: session must be removed
+                        this.mapSessions.remove(sessionName);
+                    }
+                    return new ResponseEntity<>(HttpStatus.OK);
+                } else {
+                    // The TOKEN wasn't valid
+                    System.out.println("Problems in the app server: the TOKEN wasn't valid");
+                    return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
                 }
-                return new ResponseEntity<>(HttpStatus.OK);
+
             } else {
-                // The TOKEN wasn't valid
-                System.out.println("Problems in the app server: the TOKEN wasn't valid");
+                // The SESSION does not exist
+                System.out.println("Problems in the app server: the SESSION does not exist");
                 return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
             }
-
-        } else {
-            // The SESSION does not exist
-            System.out.println("Problems in the app server: the SESSION does not exist");
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-        }
     }
 
     private ResponseEntity<JSONObject> createSession(User user) {
